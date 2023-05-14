@@ -1,0 +1,17 @@
+{
+  "name": "root",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "postinstall": "lerna bootstrap",
+    "build": "lerna run build --stream",
+    "test": "lerna run test --stream"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lerna": "^6.6.1"
+  }
+}
