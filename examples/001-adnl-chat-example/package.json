@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "A sample chat application demonstrating the usage of the ADNL package for real-time communication in a TON-based ecosystem.",
-  "author": "thekiba <hr@thekiba.io>",
+  "author": "thekiba <hr@thekiba.io>, goreactdev <goreactdev12@gmail.com>",
   "homepage": "",
   "license": "MIT",
   "main": "dist/lib/index.js",

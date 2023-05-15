@@ -10,7 +10,7 @@
     "typescript",
     "toolkit"
   ],
-  "author": "thekiba <hr@thekiba.io>",
+  "author": "thekiba <hr@thekiba.io>, goreactdev <goreactdev12@gmail.com>",
   "homepage": "https://github.com/thekiba/tonutils#readme",
   "license": "MIT",
   "main": "./index.js",
