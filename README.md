@@ -1,4 +1,4 @@
-# Tonutils
+# Tonutils-JS
 
 `tonutils` is a comprehensive toolkit for working with the TON (The Open Network) protocols. This package provides an easy-to-use, TypeScript-based interface for building and interacting with applications in the TON ecosystem.
 
