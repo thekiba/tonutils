@@ -1002,7 +1002,7 @@ export class AdnlNode {
       peerId,
     };
 
-    const constructor = data.readUInt32BE(0);
+    const constructor = data.readInt32LE(0);
     for (const subscriber of subscribers) {
       if (await subscriber.tryConsumeCustom(ctx, constructor, data)) {
         return;
