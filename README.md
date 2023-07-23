@@ -28,7 +28,7 @@ npm install tonutils
 
 - **[tonutils/config](./packages/config/README.md)**: A Node.js library for loading and parsing the global configuration file from the TON network (https://ton.org/global-config.json). It provides a typed interface for easy access to the configuration properties, simplifying the development of decentralized applications by offering a convenient way to access TON network settings.
 
-- *(not implemented yet)* **tonutils/dht**: This package facilitates interaction with the Distributed Hash Table (DHT) used by the TON network.
+- **[tonutils/dht](./packages/dht/README.md)**: This package facilitates interaction with the Distributed Hash Table (DHT) used by the TON network.
 
 - *(not implemented yet)* **tonutils/fec**: The Forward Error Correction (FEC) package provides mechanisms for error detection and correction in the data transmission process.
 
