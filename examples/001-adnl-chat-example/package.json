@@ -19,6 +19,7 @@
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "format": "prettier --write 'src/**/*.ts'",
+    "start": "ts-node-dev --respawn lib/index.ts",
     "test": "jest"
   },
   "dependencies": {

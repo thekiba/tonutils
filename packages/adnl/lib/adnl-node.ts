@@ -18,13 +18,21 @@ import {
 import * as dgram from "dgram";
 import {Socket} from "dgram";
 import * as tonapi from '@tonutils/tl';
-import {TLWriteBuffer, TLReadBuffer, adnl_AddressList, adnl_Message, adnl_message_part, adnl_PacketContents, Codecs} from '@tonutils/tl';
+import {
+  adnl_AddressList,
+  adnl_Message,
+  adnl_message_part,
+  adnl_PacketContents,
+  Codecs,
+  TLReadBuffer,
+  TLWriteBuffer
+} from '@tonutils/tl';
 import {PrivateKey, PublicKey, PublicKeyHash} from "@tonutils/keys";
 import * as crypto from 'crypto';
 import {AdnlPacketContents} from "./packet";
 import {AddressInfo} from "net";
 
-export class NodeOptions {
+export class AdnlNodeOptions {
   /**
    * Minimal ADNL query timeout. Will override the used timeout if it is less.
    * Default: `500` ms
@@ -85,22 +93,14 @@ export class NodeOptions {
    */
   public readonly useLoopbackForNeighbours: boolean = false;
 
-  constructor(partial: {
-    queryMinTimeoutMs: number,
-    queryDefaultTimeoutMs: number,
-    transferTimeoutSec: number,
-    clockToleranceSec: number,
-    channelResetTimeoutSec: number,
-    addressListTimeoutSec: number,
-    packetHistoryEnabled: boolean,
-    packetSignatureRequired: boolean,
-    forceUsePriorityChannels: boolean,
-    useLoopbackForNeighbours: boolean,
-  }) {
+  constructor(partial?: Partial<AdnlNodeOptions>) {
+    if (partial) {
+      Object.assign(this, partial);
+    }
   }
 
-  static default(): NodeOptions {
-    return new NodeOptions({
+  static default(): AdnlNodeOptions {
+    return new AdnlNodeOptions({
       queryMinTimeoutMs: 500,
       queryDefaultTimeoutMs: 5000,
       transferTimeoutSec: 3,
@@ -132,7 +132,7 @@ export class AdnlNode {
    * AdnlNode configuration, see `NodeOptions` for details
    * @internal
    */
-  private readonly options: NodeOptions;
+  private readonly options: AdnlNodeOptions;
 
   /**
    * If specified, peers are only accepted if they match the filter
@@ -199,7 +199,7 @@ export class AdnlNode {
    *
    * const socketAddr = new SocketAddrV4('0.0.0.0', 0);
    * const keystore = new Keyring(new KeyStore());
-   * const options = NodeOptions.default();
+   * const options = AdnlNodeOptions.default();
    * const peerFilter = undefined;
    *
    * // fill keystore with keys
@@ -210,7 +210,7 @@ export class AdnlNode {
   constructor(
     socketAddr: SocketAddrV4,
     keystore: Keyring,
-    options: NodeOptions,
+    options: AdnlNodeOptions,
     peerFilter?: PeerFilter | undefined,
   ) {
     const peers = new HashMap<AdnlNodeIdShort, Peers>();
@@ -237,10 +237,21 @@ export class AdnlNode {
     });
   }
 
+  public static async create(
+    socketAddr: SocketAddrV4,
+    keystore: Keyring,
+    options: AdnlNodeOptions,
+    peerFilter?: PeerFilter | undefined,
+  ): Promise<AdnlNode> {
+    const node = new AdnlNode(socketAddr, keystore, options, peerFilter);
+    await node.start();
+    return node;
+  }
+
   /**
    * ADNL node options
    */
-  getOptions(): NodeOptions {
+  getOptions(): AdnlNodeOptions {
     return this.options;
   }
 
@@ -289,6 +300,16 @@ export class AdnlNode {
    */
   public addQuerySubscriber(querySubscriber: QuerySubscriber): void {
     this.initState.querySubscribers.push(querySubscriber);
+  }
+
+  /**
+   * Removes a query subscriber
+   */
+  public removeQuerySubscriber(querySubscriber: QuerySubscriber): void {
+    const index = this.initState.querySubscribers.indexOf(querySubscriber);
+    if (index >= 0) {
+      this.initState.querySubscribers.splice(index, 1);
+    }
   }
 
   /**
@@ -369,6 +390,13 @@ export class AdnlNode {
   }
 
   /**
+   * Searches for the stored ADNL private key by it's short id
+   */
+  public async privateKeyById(id: AdnlNodeIdShort): Promise<PrivateKey> {
+    return await this.keystore.getPrivateKey(id.hash);
+  }
+
+  /**
    * Adds new remote peer. Returns whether the peer was added
    */
   public addPeer(ctx: NewPeerContext, localId: AdnlNodeIdShort, peerId: AdnlNodeIdShort, addr: SocketAddrV4, peerIdFull: AdnlNodeIdFull): boolean {
@@ -389,7 +417,7 @@ export class AdnlNode {
       peer.setAddr(addr);
     } else {
       peers.set(peerId, new Peer(this.startTime, addr, peerIdFull));
-      console.log(`added ADNL peer ${localId.hash.raw().toString('hex')} ${peerId.hash.raw().toString('hex')} ${addr.ip}:${addr.port}`);
+      console.log(`added ADNL peer ${localId.serialize().toString('hex')} ${peerId.serialize().toString('hex')} ${addr.ip}:${addr.port}`);
     }
 
     return true;
@@ -442,6 +470,15 @@ export class AdnlNode {
   }
 
   /**
+   * ADNL query to the remote peer with prefix
+   */
+  public async queryWithPrefix(localId: AdnlNodeIdShort, peerId: AdnlNodeIdShort, prefix: Buffer, query: Buffer, timeout?: number): Promise<Buffer | undefined> {
+    const data = Buffer.concat([prefix, query]);
+
+    return await this.queryRaw(localId, peerId, data, timeout);
+  }
+
+  /**
    * ADNL query to the remote peer, use `query` method instead
    */
   public async queryRaw(localId: AdnlNodeIdShort, peerId: AdnlNodeIdShort, query: Buffer, timeout?: number): Promise<Buffer | undefined> {
@@ -453,6 +490,7 @@ export class AdnlNode {
       query: query,
     }, true);
     const channel = this.channelsByPeers.get(peerId);
+
     const answer = await pendingQuery.wait(timeout || this.options.queryDefaultTimeoutMs);
     if (!answer && channel) {
       if (channel.updateDropTimeout(Math.round(Date.now() / 1000), this.options.channelResetTimeoutSec)) {
@@ -532,7 +570,7 @@ export class AdnlNode {
     const peers = this.getPeers(localId);
     const peer = peers.get(peerId);
     if (!peer) {
-      throw new Error(`Unknown peer ${peerId.hash.raw().toString('hex')}`);
+      throw new Error(`Unknown peer ${peerId.serialize().toString('hex')}`);
     }
 
     const localKey = await this.keystore.getPublicKey(localId.hash);
@@ -749,7 +787,7 @@ export class AdnlNode {
 
     const {digest, encrypted} = sharedSecret.createEncryptor().encrypt(data);
 
-    return Buffer.concat([peerId.hash.raw(), publicKey.raw(), digest, encrypted]);
+    return Buffer.concat([peerId.serialize(), publicKey.raw(), digest, encrypted]);
   }
 
   /**

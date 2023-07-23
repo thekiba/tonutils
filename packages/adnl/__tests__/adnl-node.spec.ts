@@ -4,7 +4,7 @@ import {
   AdnlNodeIdFull,
   AdnlNodeIdShort,
   NewPeerContext,
-  NodeOptions,
+  AdnlNodeOptions,
   QueryConsumingResult,
   QueryConsumingResultType,
   SocketAddrV4,
@@ -17,7 +17,7 @@ import {TLWriteBuffer, TLReadBuffer, Codecs, dht_Node, Functions} from "@tonutil
 describe('ADNL node', () => {
   describe('Connect to DHT', () => {
     it('should connect to DHT', async () => {
-      const options = NodeOptions.default();
+      const options = AdnlNodeOptions.default();
       const keyring = new KeyringImpl(new KeyringDBNoop());
       const privateKey = new PrivateKey(PrivateKey.Ed25519.random().tl());
       const localId = new AdnlNodeIdShort(privateKey.computeShortId());
@@ -95,7 +95,7 @@ describe('ADNL node', () => {
   describe('Connect between nodes', () => {
     it('should connect between nodes', async () => {
       // create first node
-      const options = NodeOptions.default();
+      const options = AdnlNodeOptions.default();
 
       const keyring1 = new KeyringImpl(new KeyringDBNoop());
       const privateKey1 = new PrivateKey(PrivateKey.Ed25519.random().tl());

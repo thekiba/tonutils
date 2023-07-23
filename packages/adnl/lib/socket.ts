@@ -10,9 +10,18 @@ export class SocketAddrV4 implements Serializable {
   ) {
   }
 
-  public static createFromAddressList(addressList: tonapi.adnl_AddressList) {
+  public static createFromAddressList(addressList: tonapi.adnl_AddressList, clockToleranceSec?: number) {
     if (addressList.addrs.length === 0) {
       throw new Error("Empty address list");
+    }
+
+    // ignore check expiration if expireAt is 0
+    if (clockToleranceSec && addressList.expireAt > 0) {
+      const now = Math.floor(Date.now() / 1000);
+
+      if (addressList.expireAt < now - clockToleranceSec || addressList.expireAt > now + clockToleranceSec) {
+        throw new Error(`Address list expired: ${addressList.expireAt} (now: ${now}, clockToleranceSec: ${clockToleranceSec})`);
+      }
     }
 
     const addr = addressList.addrs.find(addr => addr.kind === "adnl.address.udp");

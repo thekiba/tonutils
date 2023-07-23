@@ -1,1 +1,1 @@
-export const dht = null;
+export * from './dht-node';

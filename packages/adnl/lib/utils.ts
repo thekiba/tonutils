@@ -40,6 +40,14 @@ export class HashMap<T extends Serializable, V> {
   public entries(): ReadonlyArray<[string, V]> {
     return Array.from(this.map.entries());
   }
+
+  public clone(): HashMap<T, V> {
+    const map = new HashMap<T, V>();
+    for (const [key, value] of this.map.entries()) {
+      map.set({ serialize: () => Buffer.from(key, 'hex') } as T, value);
+    }
+    return map;
+  }
 }
 
 export type DataTx = (data: Buffer) => void;

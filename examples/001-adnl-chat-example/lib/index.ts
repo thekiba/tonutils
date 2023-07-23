@@ -3,7 +3,7 @@ import {
   AdnlNodeIdFull,
   AdnlNodeIdShort,
   NewPeerContext,
-  NodeOptions,
+  AdnlNodeOptions,
   QueryConsumingResult,
   QueryConsumingResultType,
   SocketAddrV4,
@@ -41,7 +41,7 @@ let peerId: AdnlNodeIdShort | undefined;
 let name: string = generateRandomNickname();
 
 (async () => {
-  const options: NodeOptions = NodeOptions.default();
+  const options: AdnlNodeOptions = AdnlNodeOptions.default();
   const socketAddr = new SocketAddrV4('udp', '0.0.0.0', 0);
   const keystore = new KeyringImpl(new KeyringDBNoop());
 

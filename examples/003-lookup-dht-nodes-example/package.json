@@ -1,16 +1,25 @@
 {
-  "name": "@tonutils/dht",
+  "name": "003-lookup-dht-nodes-example",
   "version": "0.0.0",
-  "description": "A high-performance, easy-to-use DHT client for Node.js, designed to enable efficient, distributed storage and retrieval of key-value pairs in a peer-to-peer network. This package provides a robust and flexible solution for building scalable and decentralized applications.",
+  "private": true,
+  "description": "A demonstration application for the ADNL protocol in Node.js, connecting to DHT servers and searching for them.",
   "keywords": [
-    "ton",
+    "adnl",
     "dht",
-    "client",
-    "nodejs",
-    "the-open-network"
+    "decentralized",
+    "network",
+    "communication",
+    "node.js",
+    "protocol",
+    "lookup",
+    "distributed",
+    "demonstration",
+    "application",
+    "servers",
+    "search"
   ],
   "author": "thekiba <hr@thekiba.io>, goreactdev <goreactdev12@gmail.com>",
-  "homepage": "",
+  "homepage": "https://github.com/thekiba/tonutils#readme",
   "license": "MIT",
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
@@ -21,24 +30,31 @@
   "files": [
     "lib"
   ],
-  "publishConfig": {
-    "access": "public",
-    "tag": "latest"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thekiba/tonutils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thekiba/tonutils/issues"
   },
   "scripts": {
-    "build": "tsc",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix",
     "format": "prettier --write 'src/**/*.ts'",
+    "start": "ts-node-dev --respawn --inspect -- lib/index.ts",
     "test": "jest"
   },
   "dependencies": {
     "@types/node": "^18.15.13",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.0.4",
+    "tonutils": "^0.0.0",
+    "node-fetch": "2.6.11"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",
+    "@types/node-fetch": "^2.6.3",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",
     "eslint": "^8.39.0",
