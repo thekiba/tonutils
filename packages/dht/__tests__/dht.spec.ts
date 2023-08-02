@@ -4,7 +4,7 @@ import {PrivateKey} from "@tonutils/keys";
 import {DhtNode, DhtNodeOptions} from "../lib";
 import * as tonapi from '@tonutils/tl';
 import {TLWriteBuffer, Codecs} from "@tonutils/tl";
-import {loadConfig} from "tonutils/config";
+import {loadConfig} from "@tonutils/config";
 
 describe('dht', () => {
   let server: DhtNode;
